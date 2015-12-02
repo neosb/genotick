@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Program implements Serializable {
@@ -20,7 +22,7 @@ public class Program implements Serializable {
 
     private ProgramName name;
     private final int maximumDataOffset;
-    private InstructionList mainFunction;
+    private final List<InstructionList> instructions;
     private int totalChildren;
     private int totalPredictions;
     private int correctPredictions;
@@ -34,7 +36,11 @@ public class Program implements Serializable {
     }
 
     public int getLength() {
-        return mainFunction.getSize();
+        int length = 0;
+        for(InstructionList instructionList: instructions) {
+            length += instructionList.getSize();
+        }
+        return length;
     }
 
     public ProgramName getName() {
@@ -46,8 +52,8 @@ public class Program implements Serializable {
     }
 
     private Program(int maximumDataOffset) {
-        mainFunction = InstructionList.createInstructionList();
         this.maximumDataOffset = maximumDataOffset;
+        instructions = new ArrayList<>();
     }
 
     public void recordPrediction(Prediction prediction) {
@@ -69,10 +75,6 @@ public class Program implements Serializable {
         }
     }
 
-    public InstructionList getMainFunction() {
-        return mainFunction;
-    }
-
     public int getTotalChildren() {
         return totalChildren;
     }
@@ -86,14 +88,11 @@ public class Program implements Serializable {
         return outcomesAtLastChild;
     }
 
-    public void setMainInstructionList(InstructionList newMainFunction) {
-        mainFunction = newMainFunction;
-    }
 
 
     @Override
     public String toString() {
-        int length = mainFunction.getSize();
+        int length = getLength();
         return "Name: " + this.name.toString()
                 + " Outcomes: " + String.valueOf(totalOutcomes)
                 + " Weight: " + weightFormat.format(getWeight())
@@ -132,15 +131,21 @@ public class Program implements Serializable {
     public String showProgram() throws IllegalAccessException {
         StringBuilder sb = new StringBuilder();
         addFields(sb);
-        addMainFunction(sb);
+        addFunctions(sb);
         return sb.toString();
     }
 
-    private void addMainFunction(StringBuilder sb) throws IllegalAccessException {
+    private void addFunctions(StringBuilder sb) throws IllegalAccessException {
+        for(InstructionList instructionList: instructions) {
+            addInstructionList(instructionList,sb);
+        }
+    }
+
+    private void addInstructionList(InstructionList instructionList, StringBuilder sb) throws IllegalAccessException {
         sb.append("MainFunction:").append("\n");
-        sb.append("VariableCount: ").append(mainFunction.getVariablesCount()).append("\n");
-        for(int i = 0; i < mainFunction.getSize(); i++) {
-            Instruction instruction = mainFunction.getInstruction(i);
+        sb.append("VariableCount: ").append(instructionList.getVariablesCount()).append("\n");
+        for(int i = 0; i < instructionList.getSize(); i++) {
+            Instruction instruction = instructionList.getInstruction(i);
             sb.append(instruction.instructionString()).append("\n");
         }
     }
@@ -156,5 +161,13 @@ public class Program implements Serializable {
                         append(field.get(this).toString()).append("\n");
             }
         }
+    }
+
+    public void addInstructionList(InstructionList instructionList) {
+        instructions.add(instructionList);
+    }
+
+    public List<InstructionList> getInstructionLists() {
+        return Collections.unmodifiableList(instructions);
     }
 }

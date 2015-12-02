@@ -7,10 +7,13 @@ import com.alphatica.genotick.population.Program;
 import com.alphatica.genotick.population.ProgramExecutor;
 import com.alphatica.genotick.population.ProgramExecutorSettings;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SimpleProcessor extends Processor implements ProgramExecutor {
 
     private static final int MAX_JUMP = 255;
-    private double[] registers;
+    private final double[] registers;
     private Program program;
     private ProgramData data;
     private Double programResult;
@@ -36,7 +39,7 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
         prepare(programData, program);
         programInstructionLimit = program.getLength() * instructionLimitMultiplier;
         try {
-            return executeProgramMain();
+            return executeInstructionLists();
         } catch (NotEnoughDataException |
                 TooManyInstructionsExecuted |
                 ArithmeticException ex) {
@@ -44,9 +47,25 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
         }
     }
 
+    private Prediction executeInstructionLists() {
+        List<Prediction> predictions = new ArrayList<>();
+        for(InstructionList instructionList: program.getInstructionLists()) {
+            Prediction p = execute(instructionList);
+            predictions.add(p);
+        }
+        return calculatePredictions(predictions);
+    }
+
+    private Prediction calculatePredictions(List<Prediction> predictions) {
+        double sum = 0;
+        for(Prediction prediction: predictions) {
+            sum += prediction.getValue();
+        }
+        return Prediction.getPrediction(sum);
+    }
+
     @Override
     public void setSettings(ProgramExecutorSettings settings) {
-        registers = new double[totalRegisters];
         programResult = null;
         instructionLimitMultiplier = settings.instructionLimit;
     }
@@ -54,14 +73,16 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
     private void prepare(ProgramData programData, Program program) {
         this.program = program;
         this.data = programData;
+        dataMaximumOffset = program.getMaximumDataOffset();
+    }
+
+    private void cleanExecutionVars() {
         programResult = null;
         instructionList = null;
         terminateInstructionList = false;
         changeInstructionPointer = 0;
         newJump = false;
         totalInstructionExecuted = 0;
-        dataMaximumOffset = program.getMaximumDataOffset();
-        zeroOutRegisters();
     }
 
     private void zeroOutRegisters() {
@@ -70,8 +91,10 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
         }
     }
 
-    private Prediction executeProgramMain()  {
-        executeInstructionList(program.getMainFunction());
+    private Prediction execute(InstructionList instructionList)  {
+        cleanExecutionVars();
+        zeroOutRegisters();
+        executeInstructionList(instructionList);
         if (programResult != null) {
             return Prediction.getPrediction(programResult);
         } else {
@@ -105,6 +128,7 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
 
 
     private SimpleProcessor() {
+        registers = new double[totalRegisters];
     }
 
     @Override

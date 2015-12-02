@@ -9,15 +9,19 @@ public enum Prediction {
     Prediction(double value) {
         this.value = value;
     }
-    public static Prediction getPrediction(double change) {
-        if(change > 0)
+    public static Prediction getPrediction(double forecast) {
+        if(forecast > 0)
             return Prediction.UP;
-        if(change < 0)
+        if(forecast < 0)
             return Prediction.DOWN;
         return Prediction.OUT;
     }
 
     public boolean isCorrect(Double actualFutureChange) {
         return actualFutureChange * value > 0;
+    }
+
+    public double getValue() {
+        return value;
     }
 }

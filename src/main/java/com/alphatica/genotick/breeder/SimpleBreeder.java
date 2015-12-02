@@ -56,12 +56,13 @@ public class SimpleBreeder implements ProgramBreeder {
     }
 
     private void createNewProgram(Population population) {
-        Program program = Program.createEmptyProgram(settings.dataMaximumOffset);
         int instructionsCount = mutator.getNextInt() % 1024;
-        InstructionList main = program.getMainFunction();
+        InstructionList instructionList = InstructionList.createInstructionList();
         while(instructionsCount-- > 0) {
-            addInstructionToMain(main);
+            addInstructionToMain(instructionList);
         }
+        Program program = Program.createEmptyProgram(settings.dataMaximumOffset);
+        program.addInstructionList(instructionList);
         population.saveProgram(program);
     }
 
@@ -105,55 +106,34 @@ public class SimpleBreeder implements ProgramBreeder {
     private void makeChild(Program parent1, Program parent2, Program child) {
         double weight = getParentsWeight(parent1, parent2);
         child.setInheritedWeight(weight);
-        InstructionList instructionList = mixMainInstructionLists(parent1,parent2);
-        child.setMainInstructionList(instructionList);
+        mixParentsToChild(parent1,parent2,child);
+    }
+
+    private void mixParentsToChild(Program parent1, Program parent2, Program child) {
+        copyInstructionsFromParent(parent1,child);
+        copyInstructionsFromParent(parent2,child);
+    }
+
+    private void copyInstructionsFromParent(Program parent, Program child) {
+        for(InstructionList instructionList: parent.getInstructionLists()) {
+            if(mutator.getNextDouble() > 0) { // this needs to be changed to boolean later
+                InstructionList newList = copyInstructionList(instructionList);
+                child.addInstructionList(newList);
+            }
+        }
+    }
+
+    private InstructionList copyInstructionList(InstructionList instructionList) {
+        InstructionList newInstructions = InstructionList.createInstructionList();
+        for(int i = 0; i < instructionList.getSize(); i++) {
+            Instruction instruction = instructionList.getInstruction(i);
+            addInstructionToInstructionList(instruction,newInstructions);
+        }
+        return newInstructions;
     }
 
     private double getParentsWeight(Program parent1, Program parent2) {
         return settings.inheritedWeightPercent * (parent1.getWeight() + parent2.getWeight()) / 2;
-    }
-
-    private InstructionList mixMainInstructionLists(Program parent1, Program parent2) {
-        InstructionList source1 = parent1.getMainFunction();
-        InstructionList source2 = parent2.getMainFunction();
-        return blendInstructionLists(source1,source2);
-    }
-
-    /*
-    This potentially will make programs gradually shorter.
-    Let's say that list1.size == 4 and list2.size == 2. Average length is 3.
-    Then, break1 will be between <0,3> and break2 <0,1>
-    All possible lengths for new InstructionList will be: 0,1,2,3,1,2,3,4 with equal probability.
-    Average length is 2.
-    For higher numbers this change isn't so dramatic but may add up after many populations.
-     */
-    private InstructionList blendInstructionLists(InstructionList list1, InstructionList list2) {
-        InstructionList instructionList = InstructionList.createInstructionList();
-        int break1 = getBreakPoint(list1);
-        int break2 = getBreakPoint(list2);
-        copyBlock(instructionList, list1,0,break1);
-        copyBlock(instructionList, list2,break2, list2.getSize());
-        return instructionList;
-    }
-
-    private int getBreakPoint(InstructionList list) {
-        int size = list.getSize();
-        if(size == 0)
-            return 0;
-        else
-            return Math.abs(mutator.getNextInt() % size);
-    }
-
-    private void copyBlock(InstructionList destination, InstructionList source, int start, int stop) {
-        assert start <= stop: "start > stop " + String.format("%d %d", start,stop);
-        for(int i = start; i <= stop; i++) {
-            Instruction instruction = source.getInstruction(i).copy();
-            if(!(instruction instanceof TerminateInstructionList)) {
-                addInstructionToInstructionList(instruction,destination);
-            } else {
-                break;
-            }
-        }
     }
 
     private void addInstructionToInstructionList(Instruction instruction, InstructionList instructionList) {

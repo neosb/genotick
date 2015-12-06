@@ -112,11 +112,12 @@ public class SimpleBreeder implements ProgramBreeder {
     private void mixParentsToChild(Program parent1, Program parent2, Program child) {
         copyInstructionsFromParent(parent1,child);
         copyInstructionsFromParent(parent2,child);
+        Debug.d("Child instruction sets:",child.getInstructionLists().size());
     }
 
     private void copyInstructionsFromParent(Program parent, Program child) {
         for(InstructionList instructionList: parent.getInstructionLists()) {
-            if(mutator.getNextDouble() > 0) { // this needs to be changed to boolean later
+            if(mutator.getNextDouble() > 0) {
                 InstructionList newList = copyInstructionList(instructionList);
                 child.addInstructionList(newList);
             }
@@ -153,18 +154,16 @@ public class SimpleBreeder implements ProgramBreeder {
         double totalWeight = sumTotalWeight(list);
         double target = totalWeight * mutator.getNextDouble();
         double weightSoFar = 0;
-        Program parent = null;
         Iterator<ProgramInfo> iterator = list.iterator();
         while(iterator.hasNext()) {
             ProgramInfo programInfo = iterator.next();
             weightSoFar += Math.abs(programInfo.getWeight());
             if(weightSoFar >= target) {
-                parent = population.getProgram(programInfo.getName());
-                iterator.remove();
-                break;
+                return population.getProgram(programInfo.getName());
+                //iterator.remove();
             }
         }
-        return parent;
+        return null;
     }
 
     private double sumTotalWeight(List<ProgramInfo> list) {

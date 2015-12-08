@@ -163,8 +163,8 @@ public class SimpleBreeder implements ProgramBreeder {
             ProgramInfo programInfo = iterator.next();
             weightSoFar += Math.abs(programInfo.getWeight());
             if(weightSoFar >= target) {
+                iterator.remove();
                 return population.getProgram(programInfo.getName());
-                //iterator.remove();
             }
         }
         return null;

@@ -61,6 +61,9 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
         for(Prediction prediction: predictions) {
             sum += prediction.getValue();
         }
+        if(sum == 0) {
+            sum = predictions.get(0).getValue();
+        }
         return Prediction.getPrediction(sum);
     }
 

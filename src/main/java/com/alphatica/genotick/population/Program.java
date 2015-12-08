@@ -60,7 +60,7 @@ public class Program implements Serializable {
         totalPredictions++;
         switch (prediction) {
             case UP: bias++; break;
-            case DOWN: bias--; 
+            case DOWN: bias--;
         }
     }
 

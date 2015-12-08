@@ -57,10 +57,11 @@ public class Program implements Serializable {
     }
 
     public void recordPrediction(Prediction prediction) {
-        if(prediction == Prediction.DOWN)
-            bias--;
-        else if(prediction == Prediction.UP)
-            bias++;
+        totalPredictions++;
+        switch (prediction) {
+            case UP: bias++; break;
+            case DOWN: bias--; 
+        }
     }
 
     public void recordOutcomes(List<Outcome> outcomes) {
@@ -69,7 +70,6 @@ public class Program implements Serializable {
             if(outcome == Outcome.OUT) {
                 continue;
             }
-            totalPredictions++;
             if(outcome == Outcome.CORRECT)
                 correctPredictions++;
         }

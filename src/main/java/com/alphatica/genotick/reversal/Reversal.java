@@ -69,7 +69,7 @@ public class Reversal {
      * (column 1). So it doesn't matter what High was in previous TimePoint, it matters how much higher it was comparing
      * to the open on the same line. When High becomes low - it goes down by same percent as original high was higher
      * than open.
-     * 4 - Close. Goes opposite to original close by the same percent.
+     * 4 - Close. Goes opposite to original open by the same percent.
      * 5 and more - Volume, open interest or whatever. These don't change.
      */
 

@@ -66,10 +66,10 @@ public class Program implements Serializable {
     public void recordOutcomes(List<Outcome> outcomes) {
         for(Outcome outcome: outcomes) {
             totalOutcomes++;
-            if(outcome == Outcome.OUT) {
+            if(outcome.getProfit() == 0) {
                 continue;
             }
-            if(outcome == Outcome.CORRECT)
+            if(outcome.getProfit() > 0)
                 correctPredictions++;
             totalPredictions++;
         }

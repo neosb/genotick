@@ -13,7 +13,6 @@ import com.alphatica.genotick.killer.ProgramKiller;
 import com.alphatica.genotick.population.Population;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 

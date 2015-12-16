@@ -112,7 +112,7 @@ class SimpleTimePointExecutor implements TimePointExecutor {
             List<Outcome> outcomes = new ArrayList<>();
             for(ProgramResult result: list) {
                 program.recordPrediction(result.getPrediction());
-                Outcome outcome = Outcome.getOutcome(result.getPrediction(),result.getData().getActualChange());
+                Outcome outcome = Outcome.getOutcome(result.getPrediction(),result.getData().getActualChange(),result.getData().getName());
                 outcomes.add(outcome);
             }
             program.recordOutcomes(outcomes);

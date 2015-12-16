@@ -3,7 +3,6 @@ package com.alphatica.genotick.breeder;
 import com.alphatica.genotick.genotick.Debug;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
-import com.alphatica.genotick.instructions.TerminateInstructionList;
 import com.alphatica.genotick.mutator.Mutator;
 import com.alphatica.genotick.population.Population;
 import com.alphatica.genotick.population.Program;

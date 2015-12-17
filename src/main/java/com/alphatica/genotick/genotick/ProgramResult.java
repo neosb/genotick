@@ -1,5 +1,6 @@
 package com.alphatica.genotick.genotick;
 
+import com.alphatica.genotick.data.DataSetName;
 import com.alphatica.genotick.population.Program;
 import com.alphatica.genotick.population.ProgramName;
 
@@ -7,15 +8,17 @@ public class ProgramResult {
 
     private final Prediction prediction;
     private final ProgramName name;
-    private final ProgramData data;
     private final Double weight;
+    private final Double actualChange;
+    private final DataSetName setName;
 
-    public ProgramResult(Prediction prediction, Program program, ProgramData data) {
+    public ProgramResult(Program program, DataSetName setName, Prediction prediction, Double actualChange) {
 
         this.prediction = prediction;
         this.name = program.getName();
         this.weight = program.getWeight();
-        this.data = data;
+        this.setName = setName;
+        this.actualChange = actualChange;
     }
 
     @Override
@@ -31,7 +34,11 @@ public class ProgramResult {
         return weight;
     }
 
-    public ProgramData getData() {
-        return data;
+    public DataSetName getSetName() {
+        return setName;
+    }
+
+    public Double getActualChange() {
+        return actualChange;
     }
 }

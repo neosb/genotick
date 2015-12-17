@@ -15,7 +15,7 @@ public class TimePointResult {
     }
 
     public void addProgramResult(ProgramResult programResult) {
-        DataSetName name = programResult.getData().getName();
+        DataSetName name = programResult.getSetName();
         DataSetResult dataSetResult = getDataSetResult(name);
         dataSetResult.addResult(programResult);
     }

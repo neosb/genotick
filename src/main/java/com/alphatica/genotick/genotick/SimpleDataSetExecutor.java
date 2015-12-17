@@ -14,7 +14,7 @@ public class  SimpleDataSetExecutor implements DataSetExecutor {
         List<ProgramResult> programResultList = new ArrayList<>(programDataList.size());
         for(ProgramData programData: programDataList) {
             Prediction prediction = programExecutor.executeProgram(programData,program);
-            ProgramResult result = new ProgramResult(prediction,program,programData);
+            ProgramResult result = new ProgramResult(program, programData.getName(), prediction, programData.getActualChange());
             programResultList.add(result);
         }
         return programResultList;

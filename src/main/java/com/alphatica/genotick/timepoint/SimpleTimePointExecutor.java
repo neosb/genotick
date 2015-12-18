@@ -111,7 +111,7 @@ class SimpleTimePointExecutor implements TimePointExecutor {
         private void updateProgram(Program program,List<ProgramResult> list) {
             List<Outcome> outcomes = new ArrayList<>();
             for(ProgramResult result: list) {
-                program.recordPrediction(result.getPrediction());
+                program.recordResult(result);
                 Outcome outcome = Outcome.getOutcome(result.getPrediction(),result.getActualChange(),result.getSetName());
                 outcomes.add(outcome);
             }

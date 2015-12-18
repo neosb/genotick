@@ -3,6 +3,7 @@ package com.alphatica.genotick.population;
 
 import com.alphatica.genotick.genotick.Outcome;
 import com.alphatica.genotick.genotick.Prediction;
+import com.alphatica.genotick.genotick.ProgramResult;
 import com.alphatica.genotick.genotick.WeightCalculator;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
@@ -29,7 +30,8 @@ public class Program implements Serializable {
     private double inheritedWeight;
     private int totalOutcomes;
     private long outcomesAtLastChild;
-    private int bias;
+    private int predictionsUp;
+    private int predictionsDown;
 
     public static Program createEmptyProgram(int maximumDataOffset) {
         return new Program(maximumDataOffset);
@@ -54,13 +56,6 @@ public class Program implements Serializable {
     private Program(int maximumDataOffset) {
         this.maximumDataOffset = maximumDataOffset;
         instructions = new ArrayList<>();
-    }
-
-    public void recordPrediction(Prediction prediction) {
-        switch (prediction) {
-            case UP: bias++; break;
-            case DOWN: bias--;
-        }
     }
 
     public void recordOutcomes(List<Outcome> outcomes) {
@@ -121,7 +116,7 @@ public class Program implements Serializable {
     }
 
     public int getBias() {
-        return bias;
+        return predictionsUp - predictionsDown;
     }
 
     public void setName(ProgramName name) {
@@ -169,5 +164,17 @@ public class Program implements Serializable {
 
     public List<InstructionList> getInstructionLists() {
         return Collections.unmodifiableList(instructions);
+    }
+
+    public void recordResult(ProgramResult result) {
+        recordBias(result);
+
+    }
+
+    private void recordBias(ProgramResult result) {
+        switch (result.getPrediction()) {
+            case UP: predictionsUp++; break;
+            case DOWN: predictionsDown++; break;
+        }
     }
 }

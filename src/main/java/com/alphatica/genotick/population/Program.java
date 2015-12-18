@@ -142,8 +142,8 @@ public class Program implements Serializable {
     }
 
     private void addInstructionList(InstructionList instructionList, StringBuilder sb) throws IllegalAccessException {
-        sb.append("MainFunction:").append("\n");
-        sb.append("VariableCount: ").append(instructionList.getVariablesCount()).append("\n");
+        sb.append("Instruction list:").append("\n");
+        sb.append("Variable count: ").append(instructionList.getVariablesCount()).append("\n");
         for(int i = 0; i < instructionList.getSize(); i++) {
             Instruction instruction = instructionList.getInstruction(i);
             sb.append(instruction.instructionString()).append("\n");
@@ -153,7 +153,7 @@ public class Program implements Serializable {
     private void addFields(StringBuilder sb) throws IllegalAccessException {
         Field[] fields = this.getClass().getDeclaredFields();
         for(Field field: fields) {
-            if(field.getName().equals("mainFunction"))
+            if(field.getName().equals("instructions"))
                 continue;
             field.setAccessible(true);
             if(!Modifier.isStatic(field.getModifiers())) {

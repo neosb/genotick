@@ -127,6 +127,7 @@ public class Program implements Serializable {
     public String showProgram() throws IllegalAccessException {
         StringBuilder sb = new StringBuilder();
         addFields(sb);
+        addResults(sb);
         addFunctions(sb);
         return sb.toString();
     }
@@ -136,6 +137,24 @@ public class Program implements Serializable {
             addInstructionList(instructionList,sb);
         }
     }
+    private void addResults(StringBuilder sb) {
+        for(Map.Entry<DataSetName,List<ResultHolder>> entry: resultsMap.entrySet()) {
+            showResultList(sb,entry.getKey(),entry.getValue());
+        }
+    }
+
+    private void showResultList(StringBuilder sb, DataSetName dataSetName, List<ResultHolder> resultHolders) {
+        sb.append("Results for ")
+                .append(dataSetName.toString())
+                .append("\n");
+        for(ResultHolder resultHolder: resultHolders) {
+            sb.append(resultHolder.getTimePoint().toString())
+                    .append(" ")
+                    .append(resultHolder.getProfit())
+                    .append("\n");
+        }
+    }
+
 
     private void addInstructionList(InstructionList instructionList, StringBuilder sb) throws IllegalAccessException {
         sb.append("Instruction list:").append("\n");

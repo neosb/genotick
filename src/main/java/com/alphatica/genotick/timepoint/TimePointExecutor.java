@@ -11,7 +11,8 @@ import java.util.List;
 public interface TimePointExecutor {
     List<ProgramInfo> getProgramInfos();
 
-    TimePointResult execute(List<ProgramData> programDataList,
+    TimePointResult execute(TimePoint timePoint,
+                            List<ProgramData> programDataList,
                             Population population,
                             boolean updatePrograms);
 

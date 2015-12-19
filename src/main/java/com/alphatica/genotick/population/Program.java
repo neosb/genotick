@@ -1,20 +1,19 @@
 package com.alphatica.genotick.population;
 
 
+import com.alphatica.genotick.data.DataSetName;
 import com.alphatica.genotick.genotick.Outcome;
-import com.alphatica.genotick.genotick.Prediction;
 import com.alphatica.genotick.genotick.ProgramResult;
 import com.alphatica.genotick.genotick.WeightCalculator;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
+import com.alphatica.genotick.timepoint.TimePoint;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Program implements Serializable {
     @SuppressWarnings("unused")
@@ -32,6 +31,7 @@ public class Program implements Serializable {
     private long outcomesAtLastChild;
     private int predictionsUp;
     private int predictionsDown;
+    private final Map<DataSetName,List<ResultHolder>> resultsMap;
 
     public static Program createEmptyProgram(int maximumDataOffset) {
         return new Program(maximumDataOffset);
@@ -56,6 +56,7 @@ public class Program implements Serializable {
     private Program(int maximumDataOffset) {
         this.maximumDataOffset = maximumDataOffset;
         instructions = new ArrayList<>();
+        resultsMap = new HashMap<>();
     }
 
     public void recordOutcomes(List<Outcome> outcomes) {
@@ -168,7 +169,23 @@ public class Program implements Serializable {
 
     public void recordResult(ProgramResult result) {
         recordBias(result);
+        Double profit = result.getActualChange() * result.getPrediction().getValue();
+        if(!profit.isNaN())
+            recordProfit(result.getTimePoint(), result.getSetName(),profit);
+    }
 
+    private void recordProfit(TimePoint timePoint, DataSetName setName, double profit) {
+        List<ResultHolder> results = getResultFor(setName);
+        results.add(new ResultHolder(timePoint,profit));
+    }
+
+    private List<ResultHolder> getResultFor(DataSetName setName) {
+        List<ResultHolder> list = resultsMap.get(setName);
+        if(list == null) {
+            list = new ArrayList<>();
+            resultsMap.put(setName,list);
+        }
+        return list;
     }
 
     private void recordBias(ProgramResult result) {
@@ -178,3 +195,4 @@ public class Program implements Serializable {
         }
     }
 }
+

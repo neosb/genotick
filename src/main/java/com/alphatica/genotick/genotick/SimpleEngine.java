@@ -92,7 +92,7 @@ public class SimpleEngine implements Engine {
         if(programDataList.isEmpty())
             return null;
         Debug.d("Starting TimePoint:", timePoint);
-        TimePointResult timePointResult = timePointExecutor.execute(programDataList, population, !engineSettings.executionOnly);
+        TimePointResult timePointResult = timePointExecutor.execute(timePoint,programDataList, population, !engineSettings.executionOnly);
         TimePointStats timePointStats = TimePointStats.getNewStats(timePoint);
         for(DataSetResult dataSetResult: timePointResult.listDataSetResults()) {
             Prediction prediction = dataSetResult.getCumulativePrediction();

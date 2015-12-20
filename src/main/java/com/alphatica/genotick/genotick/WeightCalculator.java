@@ -17,47 +17,28 @@ public class WeightCalculator {
     }
 
     private static double calculateSquareOfDifference2(Program program) {
-        int positiveCount = getPositiveCount(program);
-        int negativeCount = getNegativeCount(program);
-        boolean positive = positiveCount > negativeCount;
-        double weightAbs = Math.pow(positiveCount - negativeCount,2);
+        Totals totals = countTotals(program);
+        int positives = totals.positive;
+        int negatives = totals.negative;
+        boolean positive = positives > negatives;
+        double weightAbs = Math.pow(positives - negatives,2);
         return positive ? weightAbs : -weightAbs;
     }
 
-    private static int getPositiveCount(Program program) {
+    private static Totals countTotals(Program program) {
+        Totals totals = new Totals();
         Map<DataSetName, List<Result>> map = program.getResultsMap();
-        int total = 0;
         for(Map.Entry<DataSetName, List<Result>> entry: map.entrySet()) {
-            total += getPositives(entry.getValue());
+            for(Result result: entry.getValue()) {
+                if(result.getProfit() > 0) {
+                    totals.positive++;
+                }
+                if(result.getProfit() < 0) {
+                    totals.negative++;
+                }
+            }
         }
-        return total;
-    }
-
-    private static int getPositives(List<Result> results) {
-        int total = 0;
-        for(Result result : results) {
-            if(result.getProfit() > 0)
-                total++;
-        }
-        return total;
-    }
-
-    private static int getNegativeCount(Program program) {
-        Map<DataSetName, List<Result>> map = program.getResultsMap();
-        int total = 0;
-        for(Map.Entry<DataSetName, List<Result>> entry: map.entrySet()) {
-            total += getNegatives(entry.getValue());
-        }
-        return total;
-    }
-
-    private static int getNegatives(List<Result> results) {
-        int total = 0;
-        for(Result result : results) {
-            if(result.getProfit() < 0)
-                total++;
-        }
-        return total;
+        return totals;
     }
 
     @SuppressWarnings("unused")
@@ -79,5 +60,8 @@ public class WeightCalculator {
     }
 
 
-
+    private static class Totals {
+        public int positive = 0;
+        public int negative = 0;
+    }
 }

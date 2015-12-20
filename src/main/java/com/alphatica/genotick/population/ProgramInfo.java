@@ -1,5 +1,7 @@
 package com.alphatica.genotick.population;
 
+import com.alphatica.genotick.genotick.WeightCalculator;
+
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +40,7 @@ public class ProgramInfo {
 
     public ProgramInfo(Program program) {
         name = new ProgramName(program.getName().getName());
-        weight = program.getWeight();
+        weight = WeightCalculator.calculateWeight(program);
         lastChildOutcomes = program.getOutcomesAtLastChild();
         totalChildren = program.getTotalChildren();
         length = program.getLength();

@@ -4,7 +4,6 @@ package com.alphatica.genotick.population;
 import com.alphatica.genotick.data.DataSetName;
 import com.alphatica.genotick.genotick.Outcome;
 import com.alphatica.genotick.genotick.ProgramResult;
-import com.alphatica.genotick.genotick.WeightCalculator;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
 import com.alphatica.genotick.timepoint.TimePoint;
@@ -12,13 +11,11 @@ import com.alphatica.genotick.timepoint.TimePoint;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class Program implements Serializable {
     @SuppressWarnings("unused")
     private static final long serialVersionUID = -32164662984L;
-    private static final DecimalFormat weightFormat = new DecimalFormat("0.00");
 
     private ProgramName name;
     private final int maximumDataOffset;
@@ -31,7 +28,7 @@ public class Program implements Serializable {
     private long outcomesAtLastChild;
     private int predictionsUp;
     private int predictionsDown;
-    private final Map<DataSetName,List<ResultHolder>> resultsMap;
+    private final Map<DataSetName,List<Result>> resultsMap;
 
     public static Program createEmptyProgram(int maximumDataOffset) {
         return new Program(maximumDataOffset);
@@ -43,6 +40,10 @@ public class Program implements Serializable {
             length += instructionList.getSize();
         }
         return length;
+    }
+
+    public double getInheritedWeight() {
+        return inheritedWeight;
     }
 
     public ProgramName getName() {
@@ -75,11 +76,6 @@ public class Program implements Serializable {
         return totalChildren;
     }
 
-    public double getWeight() {
-        double earnedWeight = WeightCalculator.calculateWeight(this);
-        return inheritedWeight + earnedWeight;
-    }
-
     public long getOutcomesAtLastChild() {
         return outcomesAtLastChild;
     }
@@ -91,7 +87,6 @@ public class Program implements Serializable {
         int length = getLength();
         return "Name: " + this.name.toString()
                 + " Outcomes: " + String.valueOf(totalOutcomes)
-                + " Weight: " + weightFormat.format(getWeight())
                 + " Length: " + String.valueOf(length)
                 + " Children: " + String.valueOf(totalChildren);
     }
@@ -138,19 +133,19 @@ public class Program implements Serializable {
         }
     }
     private void addResults(StringBuilder sb) {
-        for(Map.Entry<DataSetName,List<ResultHolder>> entry: resultsMap.entrySet()) {
+        for(Map.Entry<DataSetName,List<Result>> entry: resultsMap.entrySet()) {
             showResultList(sb,entry.getKey(),entry.getValue());
         }
     }
 
-    private void showResultList(StringBuilder sb, DataSetName dataSetName, List<ResultHolder> resultHolders) {
+    private void showResultList(StringBuilder sb, DataSetName dataSetName, List<Result> results) {
         sb.append("Results for ")
                 .append(dataSetName.toString())
                 .append("\n");
-        for(ResultHolder resultHolder: resultHolders) {
-            sb.append(resultHolder.getTimePoint().toString())
+        for(Result result : results) {
+            sb.append(result.getTimePoint().toString())
                     .append(" ")
-                    .append(resultHolder.getProfit())
+                    .append(result.getProfit())
                     .append("\n");
         }
     }
@@ -169,6 +164,8 @@ public class Program implements Serializable {
         Field[] fields = this.getClass().getDeclaredFields();
         for(Field field: fields) {
             if(field.getName().equals("instructions"))
+                continue;
+            if(field.getName().equals("resultsMap"))
                 continue;
             field.setAccessible(true);
             if(!Modifier.isStatic(field.getModifiers())) {
@@ -194,12 +191,12 @@ public class Program implements Serializable {
     }
 
     private void recordProfit(TimePoint timePoint, DataSetName setName, double profit) {
-        List<ResultHolder> results = getResultFor(setName);
-        results.add(new ResultHolder(timePoint,profit));
+        List<Result> results = getResultFor(setName);
+        results.add(new Result(timePoint,profit));
     }
 
-    private List<ResultHolder> getResultFor(DataSetName setName) {
-        List<ResultHolder> list = resultsMap.get(setName);
+    private List<Result> getResultFor(DataSetName setName) {
+        List<Result> list = resultsMap.get(setName);
         if(list == null) {
             list = new ArrayList<>();
             resultsMap.put(setName,list);
@@ -212,6 +209,10 @@ public class Program implements Serializable {
             case UP: predictionsUp++; break;
             case DOWN: predictionsDown++; break;
         }
+    }
+
+    public Map<DataSetName, List<Result>> getResultsMap() {
+        return Collections.unmodifiableMap(resultsMap);
     }
 }
 

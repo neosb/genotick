@@ -158,7 +158,7 @@ public class SimpleBreeder implements ProgramBreeder {
 
     private Program getPossibleParent(Population population, List<ProgramInfo> list) {
         double totalWeight = sumTotalWeight(list);
-        double target = totalWeight * mutator.getNextDouble();
+        double target = totalWeight * Math.abs(mutator.getNextDouble());
         double weightSoFar = 0;
         Iterator<ProgramInfo> iterator = list.iterator();
         while(iterator.hasNext()) {

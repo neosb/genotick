@@ -163,7 +163,7 @@ public class Main {
         if(input == null) {
             exit(ERROR_CODES.NO_INPUT);
         }
-        output = UserInputOutputFactory.getUserOutput();
+        output = UserInputOutputFactory.getUserOutput(parameters);
         //noinspection ConstantConditions
         if(output == null) {
             exit(ERROR_CODES.NO_OUTPUT);
@@ -184,7 +184,7 @@ public class Main {
             output.errorMessage("Not all program arguments processed: " + parameters.getUnconsumed());
             exit(ERROR_CODES.UNKNOWN_ARGUMENT);
         }
-        Application application = new Application(output);
+        Application application = new Application(input,output);
         input.show(application);
     }
 

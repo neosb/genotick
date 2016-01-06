@@ -116,7 +116,6 @@ public class SimpleBreeder implements ProgramBreeder {
             InstructionList list = copyInstructionList(parent1.getInstructionLists().get(0));
             child.addInstructionList(list);
         }
-        Debug.d("Child instruction sets:",child.getInstructionLists().size());
     }
 
     private void copyInstructionsFromParent(Program parent, Program child) {

@@ -18,7 +18,7 @@ endTimePoint	20150101
 # Two possible options: RAM and FileSystem. Use RAM to keep population in... (guess!). 
 # Use “FileSystem” to keep population in files (they will be stored in directory “population” 
 # relative to your current directory. FileSystem is much slower but will allow for large population.
-populationDAO	FileSystem
+populationDAO	RAM
 
 # false or true. If false Genotick will do full training. If true, only prediction is given. 
 # No training or updating population / programs' weight.

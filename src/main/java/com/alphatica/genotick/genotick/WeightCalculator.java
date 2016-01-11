@@ -17,28 +17,12 @@ public class WeightCalculator {
     }
 
     private static double calculateSquareOfDifference2(Program program) {
-        Totals totals = countTotals(program);
-        int positives = totals.positive;
-        int negatives = totals.negative;
+
+        int positives = program.getProfitCount();
+        int negatives = program.getLossCount();
         boolean positive = positives > negatives;
         double weightAbs = Math.pow(positives - negatives,2);
         return positive ? weightAbs : -weightAbs;
-    }
-
-    private static Totals countTotals(Program program) {
-        Totals totals = new Totals();
-        Map<DataSetName, List<Result>> map = program.getResultsMap();
-        for(Map.Entry<DataSetName, List<Result>> entry: map.entrySet()) {
-            for(Result result: entry.getValue()) {
-                if(result.getProfit() > 0) {
-                    totals.positive++;
-                }
-                if(result.getProfit() < 0) {
-                    totals.negative++;
-                }
-            }
-        }
-        return totals;
     }
 
     @SuppressWarnings("unused")

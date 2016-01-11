@@ -29,6 +29,10 @@ public class Program implements Serializable {
     private int predictionsUp;
     private int predictionsDown;
     private final Map<DataSetName,List<Result>> resultsMap;
+    private double profitSum;
+    private int profitCount;
+    private double lossSum;
+    private int lossCount;
 
     public static Program createEmptyProgram(int maximumDataOffset) {
         return new Program(maximumDataOffset);
@@ -69,6 +73,7 @@ public class Program implements Serializable {
             if(outcome.getProfit() > 0)
                 correctPredictions++;
             totalPredictions++;
+
         }
     }
 
@@ -125,6 +130,22 @@ public class Program implements Serializable {
         addResults(sb);
         addFunctions(sb);
         return sb.toString();
+    }
+
+    public double getProfitSum() {
+        return profitSum;
+    }
+
+    public int getProfitCount() {
+        return profitCount;
+    }
+
+    public double getLossSum() {
+        return lossSum;
+    }
+
+    public int getLossCount() {
+        return lossCount;
     }
 
     private void addFunctions(StringBuilder sb) throws IllegalAccessException {
@@ -193,6 +214,13 @@ public class Program implements Serializable {
     private void recordProfit(TimePoint timePoint, DataSetName setName, double profit) {
         List<Result> results = getResultFor(setName);
         results.add(new Result(timePoint,profit));
+        if(profit > 0) {
+            profitSum += profit;
+            profitCount++;
+        } else if(profit < 0) {
+            lossSum -= profit;
+            lossCount++;
+        }
     }
 
     private List<Result> getResultFor(DataSetName setName) {

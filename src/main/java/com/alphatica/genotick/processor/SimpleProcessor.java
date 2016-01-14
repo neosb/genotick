@@ -745,6 +745,15 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
         registers[0] = lowest;
     }
 
+    @Override
+    public void execute(ChangeOfColumn ins) {
+        int column = ins.getRegister1();
+        int length = fixOffset(registers[ins.getRegister2()]);
+        double current = data.getData(column,0);
+        double past = data.getData(column,length);
+        registers[0] = (current - past) / past;
+    }
+
     private int getRelativeOffset(DataInstruction ins) {
         double value = instructionList.getVariable(ins.getDataOffsetIndex());
         return fixOffset(value);

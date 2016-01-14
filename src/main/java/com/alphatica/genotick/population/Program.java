@@ -7,6 +7,7 @@ import com.alphatica.genotick.genotick.ProgramResult;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
 import com.alphatica.genotick.timepoint.TimePoint;
+import com.alphatica.genotick.weight.WeightCalculator;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -29,9 +30,10 @@ public class Program implements Serializable {
     private int predictionsUp;
     private int predictionsDown;
     private final Map<DataSetName,List<Result>> resultsMap;
+    private WeightCalculator weightCalculator;
 
-    public static Program createEmptyProgram(int maximumDataOffset) {
-        return new Program(maximumDataOffset);
+    public static Program createEmptyProgram(int maximumDataOffset, WeightCalculator weightCalculator) {
+        return new Program(maximumDataOffset,weightCalculator);
     }
 
     public int getLength() {
@@ -54,10 +56,11 @@ public class Program implements Serializable {
         this.inheritedWeight = inheritedWeight;
     }
 
-    private Program(int maximumDataOffset) {
+    private Program(int maximumDataOffset, WeightCalculator weightCalculator) {
         this.maximumDataOffset = maximumDataOffset;
         instructions = new ArrayList<>();
         resultsMap = new HashMap<>();
+        this.weightCalculator = weightCalculator;
     }
 
     public void recordOutcomes(List<Outcome> outcomes) {
@@ -184,6 +187,7 @@ public class Program implements Serializable {
     }
 
     public void recordResult(ProgramResult result) {
+        weightCalculator.recordResult(result);
         recordBias(result);
         Double profit = result.getActualChange() * result.getPrediction().getValue();
         if(!profit.isNaN())

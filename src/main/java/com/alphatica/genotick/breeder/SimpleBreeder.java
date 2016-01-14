@@ -1,13 +1,15 @@
 package com.alphatica.genotick.breeder;
 
 import com.alphatica.genotick.genotick.Debug;
-import com.alphatica.genotick.genotick.WeightCalculator;
+import com.alphatica.genotick.genotick.WeightCalculatorStatic;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
 import com.alphatica.genotick.mutator.Mutator;
 import com.alphatica.genotick.population.Population;
 import com.alphatica.genotick.population.Program;
 import com.alphatica.genotick.population.ProgramInfo;
+import com.alphatica.genotick.weight.WeightCalculator;
+import com.alphatica.genotick.weight.WeightCalculatorFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +63,8 @@ public class SimpleBreeder implements ProgramBreeder {
         while(instructionsCount-- > 0) {
             addInstructionToMain(instructionList);
         }
-        Program program = Program.createEmptyProgram(settings.dataMaximumOffset);
+        Program program = Program.createEmptyProgram(settings.dataMaximumOffset,
+                WeightCalculatorFactory.getDefaultWeightCalculator());
         program.addInstructionList(instructionList);
         population.saveProgram(program);
     }
@@ -93,7 +96,8 @@ public class SimpleBreeder implements ProgramBreeder {
             Program parent2 = getPossibleParent(population,list);
             if(parent1 == null || parent2 == null)
                 break;
-            Program child = Program.createEmptyProgram(settings.dataMaximumOffset);
+            Program child = Program.createEmptyProgram(settings.dataMaximumOffset,
+                    WeightCalculatorFactory.getDefaultWeightCalculator());
             makeChild(parent1, parent2, child);
             population.saveProgram(child);
             parent1.increaseChildren();
@@ -137,8 +141,8 @@ public class SimpleBreeder implements ProgramBreeder {
     }
 
     private double getParentsWeight(Program parent1, Program parent2) {
-        double parent1Weight = Math.abs(WeightCalculator.calculateWeight(parent1));
-        double parent2Weight = Math.abs(WeightCalculator.calculateWeight(parent2));
+        double parent1Weight = Math.abs(WeightCalculatorStatic.calculateWeight(parent1));
+        double parent2Weight = Math.abs(WeightCalculatorStatic.calculateWeight(parent2));
         return settings.inheritedWeightPercent * (parent1Weight + parent2Weight) / 2;
     }
 

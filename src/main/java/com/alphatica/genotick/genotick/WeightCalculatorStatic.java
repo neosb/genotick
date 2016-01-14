@@ -7,7 +7,7 @@ import com.alphatica.genotick.population.Result;
 import java.util.List;
 import java.util.Map;
 
-public class WeightCalculator {
+public class WeightCalculatorStatic {
 
 
     public static double calculateWeight(Program program) {

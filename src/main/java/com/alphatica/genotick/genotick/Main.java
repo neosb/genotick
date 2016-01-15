@@ -2,10 +2,7 @@ package com.alphatica.genotick.genotick;
 
 import com.alphatica.genotick.data.DataUtils;
 import com.alphatica.genotick.data.YahooFixer;
-import com.alphatica.genotick.population.Population;
-import com.alphatica.genotick.population.PopulationDAOFileSystem;
-import com.alphatica.genotick.population.Program;
-import com.alphatica.genotick.population.ProgramInfo;
+import com.alphatica.genotick.population.*;
 import com.alphatica.genotick.reversal.Reversal;
 import com.alphatica.genotick.ui.Parameters;
 import com.alphatica.genotick.ui.UserInput;
@@ -57,7 +54,7 @@ public class Main {
     private static String getProgramString(String path) throws IllegalAccessException {
         File file = new File(path);
         Program program = PopulationDAOFileSystem.getProgramFromFile(file);
-        return program.showProgram();
+        return ProgramPrinter.showProgram(program);
     }
 
     private static void checkShowPopulation(Parameters parameters) {

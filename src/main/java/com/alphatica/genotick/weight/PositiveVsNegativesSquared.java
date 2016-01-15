@@ -41,7 +41,7 @@ public class PositiveVsNegativesSquared implements WeightCalculator {
     @Override
     public String getDescription() {
         weight = recalculate();
-        return "Weight: " + String.valueOf(weight);
+        return "PositiveVsNegativesSquared: " + String.valueOf(weight);
     }
 
     private double recalculate() {

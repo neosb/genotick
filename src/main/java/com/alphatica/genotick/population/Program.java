@@ -83,8 +83,6 @@ public class Program implements Serializable {
         return outcomesAtLastChild;
     }
 
-
-
     @Override
     public String toString() {
         int length = getLength();
@@ -120,62 +118,6 @@ public class Program implements Serializable {
 
     public void setName(ProgramName name) {
         this.name = name;
-    }
-
-    public String showProgram() throws IllegalAccessException {
-        StringBuilder sb = new StringBuilder();
-        addFields(sb);
-        addResults(sb);
-        addFunctions(sb);
-        return sb.toString();
-    }
-
-    private void addFunctions(StringBuilder sb) throws IllegalAccessException {
-        for(InstructionList instructionList: instructions) {
-            addInstructionList(instructionList,sb);
-        }
-    }
-    private void addResults(StringBuilder sb) {
-        for(Map.Entry<DataSetName,List<Result>> entry: resultsMap.entrySet()) {
-            showResultList(sb,entry.getKey(),entry.getValue());
-        }
-    }
-
-    private void showResultList(StringBuilder sb, DataSetName dataSetName, List<Result> results) {
-        sb.append("Results for ")
-                .append(dataSetName.toString())
-                .append("\n");
-        for(Result result : results) {
-            sb.append(result.getTimePoint().toString())
-                    .append(" ")
-                    .append(result.getProfit())
-                    .append("\n");
-        }
-    }
-
-
-    private void addInstructionList(InstructionList instructionList, StringBuilder sb) throws IllegalAccessException {
-        sb.append("Instruction list:").append("\n");
-        sb.append("Variable count: ").append(instructionList.getVariablesCount()).append("\n");
-        for(int i = 0; i < instructionList.getSize(); i++) {
-            Instruction instruction = instructionList.getInstruction(i);
-            sb.append(instruction.instructionString()).append("\n");
-        }
-    }
-
-    private void addFields(StringBuilder sb) throws IllegalAccessException {
-        Field[] fields = this.getClass().getDeclaredFields();
-        for(Field field: fields) {
-            if(field.getName().equals("instructions"))
-                continue;
-            if(field.getName().equals("resultsMap"))
-                continue;
-            field.setAccessible(true);
-            if(!Modifier.isStatic(field.getModifiers())) {
-                sb.append(field.getName()).append(" ").
-                        append(field.get(this).toString()).append("\n");
-            }
-        }
     }
 
     public void addInstructionList(InstructionList instructionList) {
@@ -217,6 +159,10 @@ public class Program implements Serializable {
 
     public Map<DataSetName, List<Result>> getResultsMap() {
         return Collections.unmodifiableMap(resultsMap);
+    }
+
+    public WeightCalculator getWeightCalculator() {
+        return weightCalculator;
     }
 }
 

@@ -1,14 +1,12 @@
 package com.alphatica.genotick.breeder;
 
 import com.alphatica.genotick.genotick.Debug;
-import com.alphatica.genotick.genotick.WeightCalculatorStatic;
 import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
 import com.alphatica.genotick.mutator.Mutator;
 import com.alphatica.genotick.population.Population;
 import com.alphatica.genotick.population.Program;
 import com.alphatica.genotick.population.ProgramInfo;
-import com.alphatica.genotick.weight.WeightCalculator;
 import com.alphatica.genotick.weight.WeightCalculatorFactory;
 
 import java.util.ArrayList;
@@ -141,8 +139,8 @@ public class SimpleBreeder implements ProgramBreeder {
     }
 
     private double getParentsWeight(Program parent1, Program parent2) {
-        double parent1Weight = Math.abs(WeightCalculatorStatic.calculateWeight(parent1));
-        double parent2Weight = Math.abs(WeightCalculatorStatic.calculateWeight(parent2));
+        double parent1Weight = Math.abs(parent1.getTotalWeight());
+        double parent2Weight = Math.abs(parent2.getTotalWeight());
         return settings.inheritedWeightPercent * (parent1Weight + parent2Weight) / 2;
     }
 

@@ -1,18 +1,15 @@
 package com.alphatica.genotick.population;
 
 
-import com.alphatica.genotick.data.DataSetName;
 import com.alphatica.genotick.genotick.Outcome;
 import com.alphatica.genotick.genotick.ProgramResult;
-import com.alphatica.genotick.instructions.Instruction;
 import com.alphatica.genotick.instructions.InstructionList;
-import com.alphatica.genotick.timepoint.TimePoint;
 import com.alphatica.genotick.weight.WeightCalculator;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Program implements Serializable {
     @SuppressWarnings("unused")
@@ -23,13 +20,12 @@ public class Program implements Serializable {
     private final List<InstructionList> instructions;
     private int totalChildren;
     private int totalPredictions;
-    private int correctPredictions;
     private double inheritedWeight;
     private int totalOutcomes;
     private long outcomesAtLastChild;
     private int predictionsUp;
     private int predictionsDown;
-    private final Map<DataSetName,List<Result>> resultsMap;
+    @SuppressWarnings("CanBeFinal") // I don't want this final as I hope to be able to change it later via external tools.
     private WeightCalculator weightCalculator;
 
     public static Program createEmptyProgram(int maximumDataOffset, WeightCalculator weightCalculator) {
@@ -59,7 +55,6 @@ public class Program implements Serializable {
     private Program(int maximumDataOffset, WeightCalculator weightCalculator) {
         this.maximumDataOffset = maximumDataOffset;
         instructions = new ArrayList<>();
-        resultsMap = new HashMap<>();
         this.weightCalculator = weightCalculator;
     }
 
@@ -69,8 +64,6 @@ public class Program implements Serializable {
             if(outcome.getProfit() == 0) {
                 continue;
             }
-            if(outcome.getProfit() > 0)
-                correctPredictions++;
             totalPredictions++;
         }
     }
@@ -108,9 +101,6 @@ public class Program implements Serializable {
     public int getTotalOutcomes() {
         return totalOutcomes;
     }
-    public int getCorrectPredictions() {
-        return correctPredictions;
-    }
 
     public int getBias() {
         return predictionsUp - predictionsDown;
@@ -131,23 +121,6 @@ public class Program implements Serializable {
     public void recordResult(ProgramResult result) {
         weightCalculator.recordResult(result);
         recordBias(result);
-        Double profit = result.getActualChange() * result.getPrediction().getValue();
-        if(!profit.isNaN())
-            recordProfit(result.getTimePoint(), result.getSetName(),profit);
-    }
-
-    private void recordProfit(TimePoint timePoint, DataSetName setName, double profit) {
-        List<Result> results = getResultFor(setName);
-        results.add(new Result(timePoint,profit));
-    }
-
-    private List<Result> getResultFor(DataSetName setName) {
-        List<Result> list = resultsMap.get(setName);
-        if(list == null) {
-            list = new ArrayList<>();
-            resultsMap.put(setName,list);
-        }
-        return list;
     }
 
     private void recordBias(ProgramResult result) {
@@ -157,12 +130,17 @@ public class Program implements Serializable {
         }
     }
 
-    public Map<DataSetName, List<Result>> getResultsMap() {
-        return Collections.unmodifiableMap(resultsMap);
-    }
-
     public WeightCalculator getWeightCalculator() {
         return weightCalculator;
+    }
+
+    public double getTotalWeight() {
+        List<Double> weights = weightCalculator.getWeights();
+        double sum = 0;
+        for(Double weight: weights) {
+            sum += weight;
+        }
+        return sum;
     }
 }
 

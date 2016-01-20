@@ -56,7 +56,7 @@ public class SimpleBreeder implements ProgramBreeder {
     }
 
     private void createNewProgram(Population population) {
-        int instructionsCount = mutator.getNextInt() % 1024;
+        int instructionsCount = Math.abs(mutator.getNextInt() % 1024);
         InstructionList instructionList = InstructionList.createInstructionList();
         while(instructionsCount-- > 0) {
             addInstructionToMain(instructionList);

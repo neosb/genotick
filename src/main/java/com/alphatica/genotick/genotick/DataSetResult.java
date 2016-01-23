@@ -6,38 +6,90 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataSetResult {
-    private final List<ProgramResult> list;
+    private static double threshold = 1;
+
     private final DataSetName name;
+    private double weightUp;
+    private double weightOut;
+    private int countOut;
+    private double weightDown;
+    private int countDown;
+    private int countUp;
 
     public DataSetResult(DataSetName name) {
-        list = new ArrayList<>();
         this.name = name;
     }
 
+    public static void setThreshold(double threshold) {
+        DataSetResult.threshold = threshold;
+    }
+
     public void addResult(ProgramResult programResult) {
-        list.add(programResult);
+        Double weight = programResult.getWeight();
+        if(weight.isNaN())
+            return;
+        processWeight(programResult);
+    }
+
+    private void processWeight(ProgramResult programResult) {
+        if(programResult.getWeight() > 0) {
+            switch (programResult.getPrediction()) {
+                case UP: recordUp(programResult.getWeight()); break;
+                case DOWN: recordDown(programResult.getWeight()); break;
+                case OUT: recordOut(programResult.getWeight());
+            }
+        }
+        if(programResult.getWeight() < 0) {
+            switch (programResult.getPrediction()) {
+                case UP: recordDown(-programResult.getWeight()); break;
+                case DOWN: recordUp(-programResult.getWeight()); break;
+                case OUT: recordOut(programResult.getWeight());
+            }
+        }
+    }
+
+    private void recordOut(double weight) {
+        weightOut += weight;
+        countOut++;
+    }
+
+    private void recordDown(double weight) {
+        weightDown += weight;
+        countDown++;
+    }
+
+    private void recordUp(double weight) {
+        weightUp += weight;
+        countUp++;
     }
 
     public Prediction getCumulativePrediction() {
-        double weightUp = 0;
-        double weightDown = 0;
-        double weightOut = 0;
-        double direction = 0;
-        int countUp = 0;
-        int countDown = 0;
-        int countOut = 0;
-        for(ProgramResult result: list) {
-            if(result.getWeight().isNaN())
-                continue;
-            switch(result.getPrediction()) {
-                case UP: weightUp+= result.getWeight(); countUp++; break;
-                case DOWN: weightDown += result.getWeight(); countDown++; break;
-                default: weightOut += result.getWeight(); countOut++; break;
-            }
-            direction = weightUp - weightDown;
+        double direction = weightUp - weightDown;
+        Debug.d("Before threshold: Up:",weightUp,countUp,"Down:",weightDown,countDown,"Out:",weightOut,countOut,
+                "Direction:",direction);
+        double directionAfterThreshold = applyThreshold(direction);
+        if(direction * directionAfterThreshold < 0) {
+            Debug.d("Not enough to pass threshold (",threshold,"): Up:",weightUp,"Down:",weightDown);
+            return Prediction.OUT;
         }
-        Debug.d("Up:",weightUp,countUp,"Down:",weightDown,countDown,"Out:",weightOut,countOut);
-        return Prediction.getPrediction(direction);
+        Debug.d("After threshold: Up:",weightUp,countUp,"Down:",weightDown,countDown,"Out:",weightOut,countOut,
+                "Direction",directionAfterThreshold);
+        return Prediction.getPrediction(directionAfterThreshold);
+    }
+
+    private double applyThreshold(double direction) {
+        if(threshold == 1) {
+            return direction;
+        }
+        double localWeightUp = weightUp;
+        double localWeightDown = weightDown;
+        if(direction > 0) {
+            localWeightUp /= threshold;
+        }
+        if(direction < 0) {
+            localWeightDown /= threshold;
+        }
+        return localWeightUp - localWeightDown;
     }
 
     public DataSetName getName() {

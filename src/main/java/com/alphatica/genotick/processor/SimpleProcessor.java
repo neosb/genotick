@@ -367,7 +367,7 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
     public void execute(JumpIfRegisterNotEqualRegister ins) {
         double register1 = registers[ins.getRegister1()];
         double register2 = registers[ins.getRegister2()];
-        if(register1 == register2) {
+        if(register1 != register2) {
             jumpTo(ins.getAddress());
         }
     }
@@ -592,7 +592,7 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
     @Override
     public void execute(AverageOfColumn ins) {
         int column = ins.getRegister1();
-        int length = Math.abs(ins.getRegister2());
+        int length = fixOffset(registers[ins.getRegister2()]);
         double sum = getSum(column, length);
         registers[0] = sum / length;
     }
@@ -743,6 +743,15 @@ public class SimpleProcessor extends Processor implements ProgramExecutor {
             }
         }
         registers[0] = lowest;
+    }
+
+    @Override
+    public void execute(ChangeOfColumn ins) {
+        int column = ins.getRegister1();
+        int length = fixOffset(registers[ins.getRegister2()]);
+        double current = data.getData(column,0);
+        double past = data.getData(column,length);
+        registers[0] = (current - past) / past;
     }
 
     private int getRelativeOffset(DataInstruction ins) {

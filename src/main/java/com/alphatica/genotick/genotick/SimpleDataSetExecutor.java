@@ -14,7 +14,7 @@ public class  SimpleDataSetExecutor implements DataSetExecutor {
     public List<ProgramResult> execute(TimePoint timePoint, List<ProgramData> programDataList, Program program, ProgramExecutor programExecutor) {
         List<ProgramResult> programResultList = new ArrayList<>(programDataList.size());
         for(ProgramData programData: programDataList) {
-            double weight = program.getInheritedWeight() + WeightCalculator.calculateWeight(program);
+            double weight = program.getInheritedWeight() + program.getTotalWeight();
             Prediction prediction = programExecutor.executeProgram(programData,program);
             ProgramResult result = new ProgramResult(timePoint, programData.getName(), prediction, programData.getActualChange(), weight);
             programResultList.add(result);

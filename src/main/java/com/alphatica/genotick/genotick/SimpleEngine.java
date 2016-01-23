@@ -11,6 +11,7 @@ import com.alphatica.genotick.data.DataUtils;
 import com.alphatica.genotick.data.MainAppData;
 import com.alphatica.genotick.killer.ProgramKiller;
 import com.alphatica.genotick.population.Population;
+import com.alphatica.genotick.ui.UserOutput;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,15 +25,17 @@ public class SimpleEngine implements Engine {
     private ProgramBreeder breeder;
     private Population population;
     private MainAppData data;
+    private ProfitRecorder profitRecorder;
 
     private SimpleEngine() {
+        profitRecorder = new ProfitRecorder();
     }
     public static Engine getEngine() {
         return new SimpleEngine();
     }
 
     @Override
-    public List<TimePointStats> start() {
+    public List<TimePointStats> start(UserOutput output) {
         Thread.currentThread().setName("Main engine execution thread");
         double result = 1;
         initPopulation();
@@ -43,6 +46,8 @@ public class SimpleEngine implements Engine {
             if(stat != null) {
                 timePointStats.add(stat);
                 result *= (stat.getPercentEarned() / 100 + 1);
+                profitRecorder.recordProfit(stat.getPercentEarned());
+                output.reportProfitForTimePoint(timePoint,(result - 1) * 100, stat.getPercentEarned());
                 Debug.d("Time:",timePoint,"Percent earned so far:",(result - 1) * 100);
             }
             timePoint = timePoint.next();
@@ -50,6 +55,8 @@ public class SimpleEngine implements Engine {
         if(!engineSettings.executionOnly) {
             savePopulation();
         }
+        Debug.d("Profit:",profitRecorder.getProfit(),"Drawdown:",profitRecorder.getMaxDrawdown(),
+                "Profit / DD:",profitRecorder.getProfit() / profitRecorder.getMaxDrawdown());
         return timePointStats;
     }
 

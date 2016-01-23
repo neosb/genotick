@@ -2,10 +2,7 @@ package com.alphatica.genotick.genotick;
 
 import com.alphatica.genotick.data.DataUtils;
 import com.alphatica.genotick.data.YahooFixer;
-import com.alphatica.genotick.population.Population;
-import com.alphatica.genotick.population.PopulationDAOFileSystem;
-import com.alphatica.genotick.population.Program;
-import com.alphatica.genotick.population.ProgramInfo;
+import com.alphatica.genotick.population.*;
 import com.alphatica.genotick.reversal.Reversal;
 import com.alphatica.genotick.ui.Parameters;
 import com.alphatica.genotick.ui.UserInput;
@@ -57,7 +54,7 @@ public class Main {
     private static String getProgramString(String path) throws IllegalAccessException {
         File file = new File(path);
         Program program = PopulationDAOFileSystem.getProgramFromFile(file);
-        return program.showProgram();
+        return ProgramPrinter.showProgram(program);
     }
 
     private static void checkShowPopulation(Parameters parameters) {
@@ -161,12 +158,12 @@ public class Main {
     private static void getUserIO(Parameters parameters) {
         input = UserInputOutputFactory.getUserInput(parameters);
         if(input == null) {
-            exit(ERROR_CODES.NO_INPUT);
+            exit(ErrorCodes.NO_INPUT);
         }
-        output = UserInputOutputFactory.getUserOutput();
+        output = UserInputOutputFactory.getUserOutput(parameters);
         //noinspection ConstantConditions
         if(output == null) {
-            exit(ERROR_CODES.NO_OUTPUT);
+            exit(ErrorCodes.NO_OUTPUT);
         }
     }
 
@@ -182,29 +179,14 @@ public class Main {
     private static void checkSimulation(Parameters parameters) {
         if(!parameters.allConsumed()) {
             output.errorMessage("Not all program arguments processed: " + parameters.getUnconsumed());
-            exit(ERROR_CODES.UNKNOWN_ARGUMENT);
+            exit(ErrorCodes.UNKNOWN_ARGUMENT);
         }
-        Application application = new Application(output);
+        Application application = new Application(input,output);
         input.show(application);
     }
 
-    private static void exit(ERROR_CODES code) {
+    private static void exit(ErrorCodes code) {
         System.exit(code.getValue());
     }
 }
 
-enum ERROR_CODES {
-    NO_INPUT(1),
-    UNKNOWN_ARGUMENT(2),
-    NO_OUTPUT(3);
-
-    private final int code;
-
-    ERROR_CODES(int code) {
-        this.code = code;
-    }
-
-    public int getValue() {
-        return code;
-    }
-}
